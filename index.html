@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Seller POS</title>
+    <link rel="stylesheet" href="css/style.css" />
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  </head>
+  <body>
+    <h1>المبيعات</h1>
+
+    <!-- Search -->
+    <input type="text" id="searchInput" placeholder="البحث ..." />
+
+    <!-- Tags -->
+    <div id="Category" class="tag-container"></div>
+    <div id="tagFilters" class="tag-container"></div>
+
+    <!-- Main Container -->
+    <div class="container">
+      <!-- Product List -->
+      <div class="left-column">
+        <h2>المنتجات</h2>
+        <div id="productList"></div>
+      </div>
+
+      <!-- Cart -->
+      <div class="right-column">
+        <h2>العربة</h2>
+        <ul id="cartList"></ul>
+        <h3>الاجمالي: <span id="totalPrice">0.00</span> جنيه</h3>
+        <button id="submitOrder">ازسال</button>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/index.js"></script>
+  </body>
+</html>

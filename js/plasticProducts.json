@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Water",
+    "price": 1,
+    "image": "assets/water.jpeg",
+    "tags": ["Drinks"]
+  },
+  {
+    "name": "Water2",
+    "price": 1,
+    "image": "assets/water.jpeg",
+    "tags": ["Drinks"]
+  },
+  {
+    "name": "Water3",
+    "price": 1,
+    "image": "assets/water.jpeg",
+    "tags": ["Drinks"]
+  },
+  {
+    "name": "Water4",
+    "price": 1,
+    "image": "assets/water.jpeg",
+    "tags": ["Drinks"]
+  },
+  {
+    "name": "Soda",
+    "price": 2,
+    "image": "assets/soda.png",
+    "tags": ["Drinks", "Cold"]
+  },
+  {
+    "name": "Chips",
+    "price": 1.5,
+    "image": "assets/chips.png",
+    "tags": ["Snacks"]
+  },
+  {
+    "name": "Cookies",
+    "price": 2,
+    "image": "assets/cookies.png",
+    "tags": ["Snacks", "Sweet"]
+  }
+]

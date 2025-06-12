@@ -1,0 +1,39 @@
+<!-- products.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Product Manager</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  </head>
+  <body>
+    <h1>Manage Products</h1>
+    <div class="container">
+      <div class="left-column">
+        <form id="productForm">
+          <input type="text" id="category" placeholder="Category" required />
+          <input
+            type="text"
+            id="productName"
+            placeholder="Product Name"
+            required
+          />
+          <input
+            type="number"
+            id="productPrice"
+            placeholder="Price"
+            step="0.01"
+            required
+          />
+          <button type="submit">Add Product</button>
+        </form>
+        <ul id="productList"></ul>
+      </div>
+    </div>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/products.js"></script>
+  </body>
+</html>
