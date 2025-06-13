@@ -107,3 +107,60 @@ body {
 .tag-button:hover {
   background: #ddd;
 }
+
+.filter-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.filter-tags button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 20px;
+  background-color: #ecf0f1;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  color: black;
+}
+
+.filter-tags button.active {
+  background-color: #27ae60;
+  color: white;
+}
+/* status online or offline  */
+.status-banner {
+  text-align: center;
+  padding: 8px;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.status-online {
+  background-color: #4caf50; /* Green */
+}
+
+.status-offline {
+  background-color: #f44336; /* Red */
+}
+
+/* unsynced sales */
+.unsynced-sales-section {
+  margin-top: 20px;
+  background: #fff3cd;
+  padding: 10px;
+  border: 1px solid #ffeeba;
+  border-radius: 8px;
+}
+
+.unsynced-sales-section h3 {
+  margin-top: 0;
+  color: #856404;
+}
+
+#unsyncedSalesList li {
+  font-size: 14px;
+  margin: 5px 0;
+}
