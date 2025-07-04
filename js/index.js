@@ -13,6 +13,7 @@ import {
   getProductsFromIndexedDB,
   saveProductsToIndexedDB,
 } from "./indexedDB.js";
+import { isDev } from "../settings.js";
 
 let allProductsNew = {};
 let selectedCategory = "";
@@ -432,7 +433,10 @@ window.removeFromCart = removeFromCart;
 loadProducts();
 syncPendingData();
 renderPendingTransactions();
-
+if (isDev) {
+  document.getElementById("title").textContent =
+    document.getElementById("title").textContent + " DEV";
+}
 window.addEventListener("online", () => {
   syncPendingData();
 });
