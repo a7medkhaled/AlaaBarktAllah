@@ -1,2 +1,2 @@
-export const isDev = true;
-export const isProd = false;
+export const isDev = false;
+export const isProd = true;
