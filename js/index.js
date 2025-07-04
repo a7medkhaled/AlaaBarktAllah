@@ -106,22 +106,78 @@ function renderProducts() {
       const card = document.createElement("div");
       card.className = "product-card";
 
-      card.innerHTML = `
-        <img src="${p.image}" alt="${p.name}" class="product-img" />
-        <h4>${p.name}</h4>
-        <p>سعر الوحدة: ${p.pricePerUnit.toFixed(2)} جنيه</p>
-        <p>سعر العبوة: ${
-          p.pricePerPackage ? p.pricePerPackage.toFixed(2) : "-"
-        } جنيه</p>
-         <p>سعر العبوة للمحلات: ${
-           p.priceOfPackageForShops ? p.priceOfPackageForShops.toFixed(2) : "-"
-         } جنيه</p>
-       <input type="number" min="0.25" step="0.25" value="1" id="qty-${id}" class="qty-input" />
-<label><input type="checkbox" id="package-${id}" onchange="handlePackageToggle('${id}')" /> بيع عبوة</label>
-<label><input type="checkbox" id="shopPackage-${id}" onchange="handleShopPackageToggle('${id}')" /> سعر جملة</label>
-<button onclick="addToCart('${id}')">إضافة</button>
-      `;
+      // Product Name
+      const name = document.createElement("h4");
+      name.textContent = p.name;
+      card.appendChild(name);
 
+      // Price Per Unit
+      const unitPrice = document.createElement("p");
+      unitPrice.textContent = `سعر الوحدة: ${p.pricePerUnit.toFixed(2)} جنيه`;
+      card.appendChild(unitPrice);
+
+      // Price Per Package
+      if (p.packageCount != 1) {
+        const packagePrice = document.createElement("p");
+        packagePrice.textContent = `سعر العبوة: ${
+          p.pricePerPackage ? p.pricePerPackage.toFixed(2) : "-"
+        } جنيه`;
+        card.appendChild(packagePrice);
+      }
+
+      // if (p.packageCount != 1 && p.category == "منظفات") {
+      // Price of Package for Shops
+      const shopPackagePrice = document.createElement("p");
+      shopPackagePrice.textContent = `سعر العبوة للمحلات: ${
+        p.priceOfPackageForShops ? p.priceOfPackageForShops.toFixed(2) : "-"
+      } جنيه`;
+      card.appendChild(shopPackagePrice);
+      // }
+
+      // Quantity Input
+      // console.log(p.tags);
+      const qtyInput = document.createElement("input");
+      qtyInput.type = "number";
+      // qtyInput.min = "0.25";
+      qtyInput.value = "1";
+      qtyInput.id = `qty-${id}`;
+      qtyInput.className = "qty-input";
+
+      // Reset step before setting (fix browser glitch)
+      // qtyInput.removeAttribute("step");
+      qtyInput.step = p.tags.includes("شنط") ? "0.25" : "1";
+
+      card.appendChild(qtyInput);
+
+      // Package Checkbox
+      if (p.packageCount != 1) {
+        const packageLabel = document.createElement("label");
+        const packageCheckbox = document.createElement("input");
+        packageCheckbox.type = "checkbox";
+        packageCheckbox.id = `package-${id}`;
+        packageCheckbox.onchange = () => handlePackageToggle(id);
+        packageLabel.appendChild(packageCheckbox);
+        packageLabel.append(" بيع عبوة");
+        card.appendChild(packageLabel);
+      }
+
+      // Shop Package Checkbox
+      const shopLabel = document.createElement("label");
+      const shopCheckbox = document.createElement("input");
+      shopCheckbox.type = "checkbox";
+      shopCheckbox.id = `shopPackage-${id}`;
+      shopCheckbox.onchange = () => handleShopPackageToggle(id);
+      shopLabel.appendChild(shopCheckbox);
+      shopLabel.append(" سعر جملة");
+      card.appendChild(shopLabel);
+
+      // Add to Cart Button
+      const addButton = document.createElement("button");
+      addButton.textContent = "إضافة";
+      addButton.onclick = () => addToCart(id);
+      card.appendChild(addButton);
+
+      // Append final card
       productList.appendChild(card);
     }
   });
@@ -138,8 +194,8 @@ function addToCart(id) {
 
   const product = allProductsNew[id];
   const shopPackageCheckbox = document.getElementById(`shopPackage-${id}`);
-  const isShopPackage = shopPackageCheckbox.checked;
-  const isPackage = packageCheckbox.checked;
+  const isShopPackage = !!shopPackageCheckbox?.checked;
+  const isPackage = !!packageCheckbox?.checked;
 
   let price;
   if (isShopPackage && product.priceOfPackageForShops) {
@@ -215,6 +271,7 @@ async function submitData(type = "sale") {
     second: "2-digit",
     hour12: false,
   });
+  console.log(cart);
 
   const payload = {
     items: cart.map(({ id, name, quantity, price, isPackage }) => ({
@@ -378,4 +435,8 @@ renderPendingTransactions();
 
 window.addEventListener("online", () => {
   syncPendingData();
+});
+window.addEventListener("offline", () => {
+  const status = document.getElementById("syncStatus");
+  status.textContent = "📴 لا يوجد اتصال بالإنترنت";
 });

@@ -51,12 +51,36 @@ body {
 
 /* Product card styling */
 .product-card {
-  border: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
   padding: 10px;
+  border: 1px solid #ccc;
   border-radius: 10px;
-  text-align: center;
   background: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* Optional: fix card height if you want uniform size */
+  /* min-height: 300px; */
+}
+
+.product-card button {
+  margin-top: auto; /* Push button to bottom */
+  width: 100%; /* Full width button */
+  padding: 10px;
+  font-size: 1rem;
+}
+.product-card > * {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.product-card > h4 {
+  margin-top: 0; /* Remove extra space before heading */
+  margin-bottom: 6px;
+}
+
+.product-card > button {
+  margin-top: auto; /* keep button at bottom */
+  margin-bottom: 0;
 }
 
 /* Product image size */
@@ -133,7 +157,7 @@ body {
 .status-banner {
   text-align: center;
   padding: 8px;
-  color: white;
+
   font-weight: bold;
   font-size: 14px;
 }
@@ -163,4 +187,52 @@ body {
 #unsyncedSalesList li {
   font-size: 14px;
   margin: 5px 0;
+}
+
+#searchInput {
+  padding: 1rem;
+  font-size: 1.1rem;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 1rem 0;
+}
+#searchInput:focus {
+  outline: none;
+  border-color: #27ae60;
+  box-shadow: 0 0 5px rgba(39, 174, 96, 0.5);
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap; /* Wrap on small screens */
+  justify-content: space-between; /* Spread them out */
+  margin-bottom: 1rem;
+}
+
+.status-banner {
+  flex-shrink: 0;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+#refreshProductsBtn {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  font-size: 16px;
+}
+
+.top-bar h1 {
+  margin: 0;
+  flex-grow: 1; /* Take remaining space */
+  text-align: center;
+  font-size: 1.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
