@@ -1,8 +1,11 @@
 // firebase-config.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import { isDev } from "../settings.js";
 
-const response = await fetch("./firebaseKeys.json");
+const ENV = isDev ? "dev" : "prod";
+const configFile = `./firebaseKeys.${ENV}.json`;
+const response = await fetch(configFile);
 const firebaseConfig = await response.json();
 console.log(firebaseConfig);
 
