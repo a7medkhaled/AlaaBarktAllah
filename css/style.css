@@ -140,13 +140,15 @@ body {
 }
 
 .filter-tags button {
-  padding: 0.5rem 1rem;
+  padding: 1rem 2rem;
   border: none;
   border-radius: 20px;
   background-color: #ecf0f1;
   cursor: pointer;
   transition: background-color 0.3s ease;
   color: black;
+  font-size: medium;
+  font-weight: bold;
 }
 
 .filter-tags button.active {
@@ -235,4 +237,72 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* login styles */
+.auth-container {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.input {
+  display: block;
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+}
+
+.btn {
+  margin: 0.5rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.btn.google {
+  background: #db4437;
+  color: white;
+}
+
+.btn.logout {
+  background: #666;
+  color: white;
+}
+
+.user-info {
+  margin-top: 1rem;
+  font-style: italic;
+}
+
+/* loader */
+#global-loader {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+#global-loader .spinner {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #27ae60;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

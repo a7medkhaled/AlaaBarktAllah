@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login</title>
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <div id="global-loader" style="display: flex">
+      <div class="spinner"></div>
+    </div>
+    <div id="loginForm" class="auth-container" style="display: none">
+      <h1>Login</h1>
+
+      <input id="email" type="email" placeholder="Email" class="input" />
+      <input
+        id="password"
+        type="password"
+        placeholder="Password"
+        class="input"
+      />
+
+      <button id="login-email" class="btn">Login</button>
+      <!-- <button id="register-email" class="btn">Register</button>
+      <button id="login-google" class="btn google">Login with Google</button> -->
+      <button id="logout" class="btn logout">Logout</button>
+
+      <p id="user-info" class="user-info"></p>
+    </div>
+
+    <script type="module" src="./js/login.js"></script>
+  </body>
+</html>

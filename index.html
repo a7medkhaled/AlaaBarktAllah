@@ -14,41 +14,50 @@
     <!-- <script type="module" src="js/indexedDB.js" defer></script> -->
   </head>
   <body>
-    <div class="top-bar">
-      <div id="syncStatus" class="status-banner">جارٍ التحقق من الاتصال...</div>
-      <h1 id="title">المبيعات</h1>
-      <button id="refreshProductsBtn">🔄 تحديث المنتجات</button>
+    <div id="global-loader" style="display: flex">
+      <div class="spinner"></div>
     </div>
-
-    <!-- Search -->
-    <input type="text" id="searchInput" placeholder="البحث ..." />
-
-    <!-- Tags -->
-    <div id="Category" class="tag-container"></div>
-    <div id="tagFilters" class="tag-container"></div>
-
-    <div id="category-tags" class="filter-tags"></div>
-    <div id="tag-tags" class="filter-tags"></div>
-
-    <!-- Main Container -->
-    <div class="container">
-      <!-- Product List -->
-      <div class="left-column">
-        <h2>المنتجات</h2>
-        <div id="productList"></div>
+    <div id="homePage" style="display: none">
+      <div class="top-bar">
+        <div id="syncStatus" class="status-banner">
+          جارٍ التحقق من الاتصال...
+        </div>
+        <h1 id="title">المبيعات</h1>
+        <button id="refreshProductsBtn">🔄 تحديث المنتجات</button>
+        <button id="logout">تسجيل الخروج</button>
+        <p id="userName"/ >
       </div>
 
-      <!-- Cart -->
-      <div class="right-column">
-        <h2>العربة</h2>
-        <ul id="cartList"></ul>
-        <h3>الاجمالي: <span id="totalPrice">0.00</span> جنيه</h3>
-        <button id="submitOrder">ازسال</button>
-        <button id="submitReturn">إرجاع الأصناف</button>
+      <!-- Search -->
+      <input type="text" id="searchInput" placeholder="البحث ..." />
 
-        <div id="offlineSalesBox" style="display: none">
-          <h3>⏳ المبيعات غير المرسلة</h3>
-          <ul id="unsyncedSalesList"></ul>
+      <!-- Tags -->
+      <div id="Category" class="tag-container"></div>
+      <div id="tagFilters" class="tag-container"></div>
+
+      <div id="category-tags" class="filter-tags"></div>
+      <div id="tag-tags" class="filter-tags"></div>
+
+      <!-- Main Container -->
+      <div class="container">
+        <!-- Product List -->
+        <div class="left-column">
+          <h2>المنتجات</h2>
+          <div id="productList"></div>
+        </div>
+
+        <!-- Cart -->
+        <div class="right-column">
+          <h2>العربة</h2>
+          <ul id="cartList"></ul>
+          <h3>الاجمالي: <span id="totalPrice">0.00</span> جنيه</h3>
+          <button id="submitOrder">ازسال</button>
+          <button id="submitReturn">إرجاع الأصناف</button>
+
+          <div id="offlineSalesBox" style="display: none">
+            <h3>⏳ المبيعات غير المرسلة</h3>
+            <ul id="unsyncedSalesList"></ul>
+          </div>
         </div>
       </div>
     </div>
