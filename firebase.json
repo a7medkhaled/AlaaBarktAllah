@@ -2,6 +2,6 @@
   "hosting": {
     "public": ".",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-    "site": "alaabarktallah"
+    "site": "alaabarktallah-dev"
   }
 }
