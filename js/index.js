@@ -280,15 +280,7 @@ window.removeFromCart = (index) => {
 async function submitData(type = "sale") {
   if (cart.length === 0) return alert("السلة فارغة.");
 
-  const timestamp = new Date().toLocaleString("en-GB", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  });
+  const timestamp = new Date();
 
   const payload = {
     items: cart.map(({ id, name, quantity, price, isPackage }) => ({
@@ -303,6 +295,7 @@ async function submitData(type = "sale") {
     timestamp,
     type,
   };
+  console.log(JSON.stringify(payload));
 
   try {
     if (navigator.onLine) {
