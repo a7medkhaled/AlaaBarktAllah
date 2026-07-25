@@ -477,6 +477,29 @@ window.removeFromCart = (index) => {
 
 // ------------------ Submit ------------------
 
+function sanitizeForFirestore(value) {
+  if (value === undefined) return undefined;
+
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => sanitizeForFirestore(item))
+      .filter((item) => item !== undefined);
+  }
+
+  if (value && typeof value === "object") {
+    const cleaned = {};
+    Object.entries(value).forEach(([key, itemValue]) => {
+      const cleanedValue = sanitizeForFirestore(itemValue);
+      if (cleanedValue !== undefined) {
+        cleaned[key] = cleanedValue;
+      }
+    });
+    return cleaned;
+  }
+
+  return value;
+}
+
 async function submitData(type = "sale") {
   if (cart.length === 0) return alert("السلة فارغة.");
 
@@ -501,22 +524,23 @@ async function submitData(type = "sale") {
   const customerMobile = selectedOption?.dataset?.mobile || "";
   const currentUser = auth.currentUser;
   const orderUserName = currentUser?.displayName || currentUser?.email || "";
+  const userId = currentUser?.uid || "";
 
-  const payload = {
+  const payload = sanitizeForFirestore({
     items: cart.map(({ id, name, quantity, price, isPackage }) => ({
       id,
       name,
       quantity,
       price,
-      isPackage,
+      isPackage: Boolean(isPackage),
       type,
     })),
     total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
     timestamp,
     type,
-    ...(orderUserName && {
+    ...(orderUserName && userId && {
       user: {
-        id: currentUser.uid,
+        id: userId,
         name: orderUserName,
       },
     }),
@@ -527,7 +551,7 @@ async function submitData(type = "sale") {
         mobile: customerMobile,
       },
     }),
-  };
+  });
   console.log(JSON.stringify(payload));
 
   try {
@@ -541,14 +565,14 @@ async function submitData(type = "sale") {
 
     cart.length = 0;
     renderCart();
-    
+
     // Reset inputs after submission
     elements.customerSearchInput.value = "";
     elements.customerSelect.value = "";
     elements.customerSelect.innerHTML = `<option value="">اختر العميل</option>`;
     elements.isQuantityOrdered.checked = false;
     elements.allowSkipCustomer.checked = false;
-    
+
     renderPendingTransactions();
   } catch (e) {
     console.error("Submit error:", e);
