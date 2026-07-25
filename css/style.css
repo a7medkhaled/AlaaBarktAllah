@@ -109,7 +109,59 @@ body {
 }
 
 .right-column {
-  max-width: 300px;
+  max-width: 420px;
+}
+
+/* Customers area improvements */
+.customer-search {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0 12px 0;
+}
+
+.customer-search input {
+  flex: 1;
+  padding: 10px 12px;
+  font-size: 1rem;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+}
+
+.customer-search button {
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  background: #007bff;
+  color: white;
+  border: none;
+}
+
+#customerSelect {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 1rem;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+
+#newCustomerForm input {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 1rem;
+  margin-bottom: 8px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+#addCustomerBtn {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 1rem;
+  border-radius: 8px;
 }
 
 /* Tag styles */

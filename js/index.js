@@ -4,6 +4,7 @@ import {
   doc,
   getDoc,
   collection,
+  getDocs,
   addDoc,
 } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
@@ -26,6 +27,16 @@ const elements = {
   loader: document.getElementById("global-loader"),
   productList: document.getElementById("productList"),
   cartList: document.getElementById("cartList"),
+  customerSelect: document.getElementById("customerSelect"),
+  customerSearchInput: document.getElementById("customerSearchInput"),
+  newCustomerForm: document.getElementById("newCustomerForm"),
+  newCustomerName: document.getElementById("newCustomerName"),
+  newCustomerAddress: document.getElementById("newCustomerAddress"),
+  newCustomerMobile: document.getElementById("newCustomerMobile"),
+  toggleCustomerFormBtn: document.getElementById("toggleCustomerFormBtn"),
+  addCustomerBtn: document.getElementById("addCustomerBtn"),
+  isQuantityOrdered: document.getElementById("isQuantityOrdered"),
+  allowSkipCustomer: document.getElementById("allowSkipCustomer"),
   totalPrice: document.getElementById("totalPrice"),
   searchInput: document.getElementById("searchInput"),
   syncStatus: document.getElementById("syncStatus"),
@@ -38,6 +49,7 @@ let allProducts = {};
 let selectedCategory = "";
 let selectedTag = "";
 const cart = [];
+let customers = [];
 
 protectRoute(); // Ensure route is protected
 
@@ -84,6 +96,97 @@ async function refreshProductsFromFirestore() {
   } catch (err) {
     console.error("❌ تحديث المنتجات فشل:", err);
     alert("⚠️ لم نتمكن من تحديث المنتجات.");
+  }
+}
+
+async function loadCustomers() {
+  try {
+    const snapshot = await getDocs(collection(db, "customers"));
+    customers = [];
+
+    snapshot.forEach((docSnap) => {
+      customers.push({ id: docSnap.id, ...docSnap.data() });
+    });
+
+    // Only render/populate the <select> when there's an active search term.
+    const term = elements.customerSearchInput?.value?.trim();
+    if (term) {
+      renderCustomerOptions(term);
+    } else {
+      // keep select disabled and empty until user searches
+      elements.customerSelect.disabled = true;
+      elements.customerSelect.innerHTML = `<option value="">اختر العميل</option>`;
+    }
+  } catch (err) {
+    console.error("Error loading customers:", err);
+  }
+}
+
+function renderCustomerOptions(filter = "") {
+  const select = elements.customerSelect;
+  const searchTerm = filter.trim().toLowerCase();
+  select.innerHTML = `<option value="">اختر العميل</option>`;
+
+  const filtered = customers.filter((customer) => {
+    const searchable = [
+      customer.name,
+      customer.mobile,
+      customer.address,
+      customer.id,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    return !searchTerm || searchable.includes(searchTerm);
+  });
+
+  if (!filtered.length) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = searchTerm ? "لا يوجد عميل مطابق" : "لا يوجد عملاء";
+    option.disabled = true;
+    select.appendChild(option);
+    // disable select when no results
+    select.disabled = true;
+    return;
+  }
+  // keep select disabled (read-only) even when populated by search
+
+  filtered.forEach((customer) => {
+    const option = document.createElement("option");
+    option.value = customer.id;
+    const name = customer.name || customer.displayName || "";
+    const mobile = customer.mobile || "";
+    const address = customer.address || "";
+    option.textContent = [name, mobile, address].filter(Boolean).join(" — ") || customer.id;
+    // keep mobile/address available for later use
+    option.dataset.mobile = mobile;
+    option.dataset.address = address;
+    option.title = option.textContent;
+    select.appendChild(option);
+  });
+}
+
+function autoSelectCustomerByNumber(term) {
+  const normalized = String(term || "").trim().replace(/[^0-9]/g, "");
+  if (!normalized) {
+    elements.customerSelect.value = "";
+    return;
+  }
+
+  const matches = customers.filter((c) => {
+    const m = String(c.mobile || "").replace(/[^0-9]/g, "");
+    return m && m.includes(normalized);
+  });
+
+  // prefer exact match
+  const exact = matches.find((c) =>
+    String(c.mobile || "").replace(/[^0-9]/g, "") === normalized
+  );
+  const pick = exact || (matches.length === 1 ? matches[0] : null);
+  if (pick) {
+    elements.customerSelect.value = pick.id;
   }
 }
 
@@ -139,7 +242,19 @@ function renderProducts() {
   elements.productList.innerHTML = "";
 
   Object.entries(allProducts).forEach(([id, p]) => {
-    const matchesSearch = p.name.toLowerCase().includes(searchText);
+    const productText = [
+      p.name,
+      p.category,
+      p.number,
+      p.sku,
+      id,
+      ...(p.tags || []),
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    const matchesSearch = !searchText || productText.includes(searchText);
     const matchesCategory =
       !selectedCategory || p.category === selectedCategory;
     const matchesTag = !selectedTag || (p.tags && p.tags.includes(selectedTag));
@@ -175,7 +290,7 @@ function createProductCard(id, p) {
   const qtyInput = document.createElement("input");
   qtyInput.type = "number";
   qtyInput.value = "1";
-  qtyInput.step = p.tags?.includes("شنط") ? "0.25" : "1";
+  qtyInput.step = p.tags?.includes("شنط") ? "0.05" : "1";
   qtyInput.className = "qty-input";
   qtyInput.id = `qty-${id}`;
   card.appendChild(qtyInput);
@@ -192,12 +307,12 @@ function createProductCard(id, p) {
   }
 
   const shopLabel = document.createElement("label");
-  const shopCheckbox = document.createElement("input");
-  shopCheckbox.type = "checkbox";
-  shopCheckbox.id = `shopPackage-${id}`;
-  shopCheckbox.onchange = () => handleShopPackageToggle(id);
-  shopLabel.appendChild(shopCheckbox);
-  shopLabel.append(" سعر جملة");
+  // const shopCheckbox = document.createElement("input");
+  // shopCheckbox.type = "checkbox";
+  // shopCheckbox.id = `shopPackage-${id}`;
+  // shopCheckbox.onchange = () => handleShopPackageToggle(id);
+  // shopLabel.appendChild(shopCheckbox);
+  // shopLabel.append(" سعر جملة");
   card.appendChild(shopLabel);
 
   const addButton = document.createElement("button");
@@ -280,7 +395,25 @@ window.removeFromCart = (index) => {
 async function submitData(type = "sale") {
   if (cart.length === 0) return alert("السلة فارغة.");
 
+  const isQuantityOrdered = elements.isQuantityOrdered?.checked || false;
+  const allowSkipCustomer = elements.allowSkipCustomer?.checked || false;
+  const customerId = elements.customerSelect?.value || "";
+
+  // If wholesale mode is checked, customer is mandatory
+  if (isQuantityOrdered && !customerId) {
+    return alert("يجب اختيار العميل عند تفعيل وضع عميل جملة.");
+  }
+
+  // If not wholesale, customer is mandatory unless skip is checked
+  if (!isQuantityOrdered && !customerId && !allowSkipCustomer) {
+    return alert("يجب اختيار العميل.");
+  }
+
   const timestamp = new Date();
+
+  const selectedOption = elements.customerSelect?.selectedOptions?.[0];
+  const customerName = selectedOption?.textContent?.trim() || "";
+  const customerMobile = selectedOption?.dataset?.mobile || "";
 
   const payload = {
     items: cart.map(({ id, name, quantity, price, isPackage }) => ({
@@ -294,6 +427,13 @@ async function submitData(type = "sale") {
     total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
     timestamp,
     type,
+    ...(customerId && {
+      customer: {
+        id: customerId,
+        name: customerName,
+        mobile: customerMobile,
+      },
+    }),
   };
   console.log(JSON.stringify(payload));
 
@@ -308,10 +448,57 @@ async function submitData(type = "sale") {
 
     cart.length = 0;
     renderCart();
+    
+    // Reset inputs after submission
+    elements.customerSearchInput.value = "";
+    elements.customerSelect.value = "";
+    elements.customerSelect.innerHTML = `<option value="">اختر العميل</option>`;
+    elements.isQuantityOrdered.checked = false;
+    elements.allowSkipCustomer.checked = false;
+    
     renderPendingTransactions();
   } catch (e) {
     console.error("Submit error:", e);
     alert("فشل في الإرسال.");
+  }
+}
+
+async function addNewCustomer() {
+  const name = elements.newCustomerName.value.trim();
+  const address = elements.newCustomerAddress.value.trim();
+  const mobile = elements.newCustomerMobile.value.trim();
+
+  if (!name) return alert("الاسم مطلوب.");
+  if (!mobile) return alert("الهاتف مطلوب.");
+
+  const normalizedMobile = mobile.replace(/[^0-9]/g, "");
+  const duplicateCustomer = customers.find((customer) => {
+    const existingMobile = String(customer.mobile || "").trim().replace(/[^0-9]/g, "");
+    return existingMobile && existingMobile === normalizedMobile;
+  });
+  if (duplicateCustomer) {
+    return alert("هذا الرقم مستخدم بالفعل لعميل آخر.");
+  }
+
+  try {
+    const docRef = await addDoc(collection(db, "customers"), {
+      name,
+      address,
+      mobile,
+      createdAt: new Date(),
+    });
+
+    await loadCustomers();
+    elements.customerSelect.value = docRef.id;
+    elements.customerSearchInput.value = "";
+    elements.newCustomerName.value = "";
+    elements.newCustomerAddress.value = "";
+    elements.newCustomerMobile.value = "";
+    elements.newCustomerForm.style.display = "none";
+    alert("تم إضافة العميل بنجاح.");
+  } catch (err) {
+    console.error("Add customer error:", err);
+    alert("فشل في إضافة العميل.");
   }
 }
 
@@ -371,6 +558,34 @@ async function syncPendingData() {
 // ------------------ UI Init ------------------
 
 elements.searchInput.addEventListener("input", renderProducts);
+// keep the select disabled by default until search produces results
+elements.customerSelect.disabled = true;
+elements.customerSearchInput.addEventListener("input", () => {
+  const term = elements.customerSearchInput.value;
+  const digitsOnly = term.replace(/[^0-9]/g, "");
+  
+  // Only search if: not a pure number, OR number has at least 10 digits
+  const isNumber = /^\d+$/.test(term.trim());
+  if (isNumber && digitsOnly.length < 10) {
+    // Skip search for numbers < 10 digits
+    return;
+  }
+  
+  renderCustomerOptions(term);
+  autoSelectCustomerByNumber(term);
+});
+elements.toggleCustomerFormBtn.addEventListener("click", () => {
+  const isHidden =
+    elements.newCustomerForm.style.display === "none" ||
+    !elements.newCustomerForm.style.display;
+  elements.newCustomerForm.style.display = isHidden ? "block" : "none";
+  if (isHidden) {
+    const val = (elements.customerSearchInput.value || "").trim();
+    if (val) elements.newCustomerMobile.value = val;
+    elements.newCustomerName.focus();
+  }
+});
+elements.addCustomerBtn.addEventListener("click", addNewCustomer);
 document
   .getElementById("refreshProductsBtn")
   .addEventListener("click", async () => {
@@ -409,5 +624,6 @@ window.addEventListener("offline", () => {
 });
 
 loadProducts();
+loadCustomers();
 syncPendingData();
 renderPendingTransactions();

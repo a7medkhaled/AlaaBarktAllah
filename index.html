@@ -49,6 +49,26 @@
         <!-- Cart -->
         <div class="right-column">
           <h2>العربة</h2>
+          <div>
+            <input type="checkbox" id="isQuantityOrdered" /> <label for="isQuantityOrdered">عميل جملة</label>
+            <br />
+            <input type="checkbox" id="allowSkipCustomer" /> <label for="allowSkipCustomer">تخطي اختيار العميل</label>
+          </div>
+          <div class="customer-search">
+            <input type="text" id="customerSearchInput" placeholder="ابحث عن عميل بالاسم أو الهاتف" />
+            <button id="toggleCustomerFormBtn" type="button">إضافة عميل جديد</button>
+          </div>
+          <div>
+            <select id="customerSelect">
+              <option value="">اختر العميل</option>
+            </select>
+          </div>
+          <div id="newCustomerForm" style="display: none; margin-top: 10px;">
+            <input type="text" id="newCustomerName" placeholder="الاسم" />
+            <input type="text" id="newCustomerAddress" placeholder="العنوان" />
+            <input type="text" id="newCustomerMobile" placeholder="الهاتف" />
+            <button id="addCustomerBtn" type="button">حفظ العميل</button>
+          </div>
           <ul id="cartList"></ul>
           <h3>الاجمالي: <span id="totalPrice">0.00</span> جنيه</h3>
           <button id="submitOrder">ازسال</button>
