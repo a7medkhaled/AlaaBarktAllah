@@ -27,6 +27,7 @@ const elements = {
   loader: document.getElementById("global-loader"),
   productList: document.getElementById("productList"),
   cartList: document.getElementById("cartList"),
+  totalItems: document.getElementById("totalItems"),
   customerSelect: document.getElementById("customerSelect"),
   customerSearchInput: document.getElementById("customerSearchInput"),
   newCustomerForm: document.getElementById("newCustomerForm"),
@@ -46,8 +47,9 @@ const elements = {
 };
 
 let allProducts = {};
-let selectedCategory = "";
+let selectedCategory = "All";
 let selectedTag = "";
+let selectedCompany = "";
 const cart = [];
 let customers = [];
 
@@ -80,6 +82,7 @@ async function loadProducts() {
 
   renderCategoryTags();
   renderTagTags();
+  renderCompanyTags();
   renderProducts();
 }
 
@@ -195,17 +198,20 @@ function renderCategoryTags() {
   container.innerHTML = "";
 
   const categories = [
+    "All",
     ...new Set(Object.values(allProducts).map((p) => p.category)),
   ];
   categories.forEach((category) => {
     const btn = document.createElement("button");
-    btn.textContent = category;
+    btn.textContent = category === "All" ? "الكل" : category;
     btn.className = selectedCategory === category ? "active" : "";
     btn.onclick = () => {
-      selectedCategory = selectedCategory === category ? "" : category;
+      selectedCategory = category;
       selectedTag = "";
+      selectedCompany = "";
       renderCategoryTags();
       renderTagTags();
+      renderCompanyTags();
       renderProducts();
     };
     container.appendChild(btn);
@@ -215,7 +221,7 @@ function renderCategoryTags() {
 function renderTagTags() {
   const container = document.getElementById("tag-tags");
   container.innerHTML = "";
-  if (!selectedCategory) return;
+  if (!selectedCategory || selectedCategory === "All") return;
 
   const tags = new Set();
   Object.values(allProducts).forEach((p) => {
@@ -224,6 +230,8 @@ function renderTagTags() {
     }
   });
 
+  if (tags.size <= 1) return;
+
   tags.forEach((tag) => {
     const btn = document.createElement("button");
     btn.textContent = tag;
@@ -231,6 +239,42 @@ function renderTagTags() {
     btn.onclick = () => {
       selectedTag = selectedTag === tag ? "" : tag;
       renderTagTags();
+      renderCompanyTags();
+      renderProducts();
+    };
+    container.appendChild(btn);
+  });
+}
+
+function renderCompanyTags() {
+  const container = document.getElementById("company-tags");
+  container.innerHTML = "";
+
+  if (selectedCategory === "All" || (!selectedCategory && !selectedTag)) return;
+
+  const companies = new Set();
+  Object.values(allProducts).forEach((p) => {
+    const categoryMatch = selectedCategory === "All" || p.category === selectedCategory;
+    const tagMatch = !selectedTag || (p.tags && p.tags.includes(selectedTag));
+    if (categoryMatch && tagMatch && p.companyName) {
+      companies.add(p.companyName);
+    }
+  });
+
+  if (companies.size <= 1) return;
+
+  const header = document.createElement("div");
+  header.className = "filter-header";
+  header.textContent = "الشركات";
+  container.appendChild(header);
+
+  companies.forEach((company) => {
+    const btn = document.createElement("button");
+    btn.textContent = company;
+    btn.className = selectedCompany === company ? "active" : "";
+    btn.onclick = () => {
+      selectedCompany = selectedCompany === company ? "" : company;
+      renderCompanyTags();
       renderProducts();
     };
     container.appendChild(btn);
@@ -245,6 +289,7 @@ function renderProducts() {
     const productText = [
       p.name,
       p.category,
+      p.companyName,
       p.number,
       p.sku,
       id,
@@ -256,10 +301,11 @@ function renderProducts() {
 
     const matchesSearch = !searchText || productText.includes(searchText);
     const matchesCategory =
-      !selectedCategory || p.category === selectedCategory;
+      selectedCategory === "All" || p.category === selectedCategory;
     const matchesTag = !selectedTag || (p.tags && p.tags.includes(selectedTag));
+    const matchesCompany = !selectedCompany || p.companyName === selectedCompany;
 
-    if (matchesSearch && matchesCategory && matchesTag) {
+    if (matchesSearch && matchesCategory && matchesTag && matchesCompany) {
       const card = createProductCard(id, p);
       elements.productList.appendChild(card);
     }
@@ -270,16 +316,29 @@ function createProductCard(id, p) {
   const card = document.createElement("div");
   card.className = "product-card";
 
+  function tagContainsShant(tag) {
+    const normalized = String(tag || "").normalize("NFC");
+    // remove common Arabic diacritics and superscript alef
+    const cleaned = normalized.replace(/[\u064B-\u0652\u0670]/g, "").toLowerCase();
+    return cleaned.includes("شنط");
+  }
   card.innerHTML = `
     <h4>${p.name}</h4>
+    ${p.companyName ? `<p><strong>الشركة:</strong> ${p.companyName}</p>` : ""}
+    ${typeof p.stockUnits !== 'undefined' ? `<p>المخزون: ${p.stockUnits}</p>` : ""}
     <p>سعر الوحدة: ${p.pricePerUnit.toFixed(2)} جنيه</p>
+    ${
+      p.pricePerUnitForShops
+        ? `<p>سعر الوحدة للمحلات: ${p.pricePerUnitForShops.toFixed(2)} جنيه</p>`
+        : ""
+    }
     ${
       p.packageCount != 1 && p.pricePerPackage
         ? `<p>سعر العبوة: ${p.pricePerPackage.toFixed(2)} جنيه</p>`
         : ""
     }
     ${
-      p.priceOfPackageForShops
+      p.packageCount != 1 && p.priceOfPackageForShops
         ? `<p>سعر العبوة للمحلات: ${p.priceOfPackageForShops.toFixed(
             2
           )} جنيه</p>`
@@ -290,7 +349,8 @@ function createProductCard(id, p) {
   const qtyInput = document.createElement("input");
   qtyInput.type = "number";
   qtyInput.value = "1";
-  qtyInput.step = p.tags?.includes("شنط") ? "0.05" : "1";
+  const isShant = tagContainsShant(p.category) || (Array.isArray(p.tags) && p.tags.some(tagContainsShant));
+  qtyInput.step = isShant ? "0.05" : "1";
   qtyInput.className = "qty-input";
   qtyInput.id = `qty-${id}`;
   card.appendChild(qtyInput);
@@ -300,6 +360,7 @@ function createProductCard(id, p) {
     const packageCheckbox = document.createElement("input");
     packageCheckbox.type = "checkbox";
     packageCheckbox.id = `package-${id}`;
+    packageCheckbox.checked = true;
     packageCheckbox.onchange = () => handlePackageToggle(id);
     packageLabel.appendChild(packageCheckbox);
     packageLabel.append(" بيع عبوة");
@@ -325,6 +386,35 @@ function createProductCard(id, p) {
 
 // ------------------ Cart ------------------
 
+function getProductCartPrice(product, isPackage, wholesale = false) {
+  if (wholesale) {
+    if (isPackage && product.priceOfPackageForShops) {
+      return product.priceOfPackageForShops;
+    }
+    if (!isPackage && product.pricePerUnitForShops) {
+      return product.pricePerUnitForShops;
+    }
+  }
+
+  if (isPackage) {
+    return (
+      product.pricePerPackage ||
+      product.pricePerUnit * (product.unitsPerPackage || 1)
+    );
+  }
+
+  return product.pricePerUnit;
+}
+
+function recalcCartPrices() {
+  const wholesale = elements.isQuantityOrdered?.checked || false;
+  cart.forEach((item) => {
+    const product = allProducts[item.id];
+    if (!product) return;
+    item.price = getProductCartPrice(product, item.isPackage, wholesale);
+  });
+}
+
 function addToCart(id) {
   const qty = parseFloat(document.getElementById(`qty-${id}`).value);
   if (!qty || qty < 0.25) {
@@ -333,16 +423,10 @@ function addToCart(id) {
   }
 
   const product = allProducts[id];
-  const isShopPackage = document.getElementById(`shopPackage-${id}`)?.checked;
   const isPackage = document.getElementById(`package-${id}`)?.checked;
+  const wholesale = elements.isQuantityOrdered?.checked || false;
 
-  let price =
-    isShopPackage && product.priceOfPackageForShops
-      ? product.priceOfPackageForShops
-      : isPackage
-      ? product.pricePerPackage ||
-        product.pricePerUnit * (product.unitsPerPackage || 1)
-      : product.pricePerUnit;
+  const price = getProductCartPrice(product, isPackage, wholesale);
 
   const existing = cart.find(
     (item) => item.id === id && item.isPackage === isPackage
@@ -356,7 +440,7 @@ function addToCart(id) {
       quantity: qty,
       price,
       isPackage,
-      isShopPackage,
+      isShopPackage: false,
     });
   }
 
@@ -373,7 +457,7 @@ function renderCart() {
 
     const li = document.createElement("li");
     li.innerHTML = `
-      ${item.name} (${
+      ${item.name} (${ 
       item.isShopPackage ? "عبوة جملة" : item.isPackage ? "عبوة" : "وحدة"
     })
       × ${item.quantity} = ${subtotal.toFixed(2)} جنيه
@@ -382,6 +466,7 @@ function renderCart() {
     elements.cartList.appendChild(li);
   });
 
+  elements.totalItems.textContent = cart.length;
   elements.totalPrice.textContent = total.toFixed(2) + " جنيه";
 }
 
@@ -414,6 +499,8 @@ async function submitData(type = "sale") {
   const selectedOption = elements.customerSelect?.selectedOptions?.[0];
   const customerName = selectedOption?.textContent?.trim() || "";
   const customerMobile = selectedOption?.dataset?.mobile || "";
+  const currentUser = auth.currentUser;
+  const orderUserName = currentUser?.displayName || currentUser?.email || "";
 
   const payload = {
     items: cart.map(({ id, name, quantity, price, isPackage }) => ({
@@ -427,6 +514,12 @@ async function submitData(type = "sale") {
     total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
     timestamp,
     type,
+    ...(orderUserName && {
+      user: {
+        id: currentUser.uid,
+        name: orderUserName,
+      },
+    }),
     ...(customerId && {
       customer: {
         id: customerId,
@@ -574,6 +667,10 @@ elements.customerSearchInput.addEventListener("input", () => {
   renderCustomerOptions(term);
   autoSelectCustomerByNumber(term);
 });
+elements.isQuantityOrdered.addEventListener("change", () => {
+  recalcCartPrices();
+  renderCart();
+});
 elements.toggleCustomerFormBtn.addEventListener("click", () => {
   const isHidden =
     elements.newCustomerForm.style.display === "none" ||
@@ -592,6 +689,7 @@ document
     await refreshProductsFromFirestore();
     renderCategoryTags();
     renderTagTags();
+    renderCompanyTags();
     renderProducts();
   });
 document.getElementById("submitOrder").onclick = () => submitData("sale");
