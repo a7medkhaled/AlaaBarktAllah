@@ -2,6 +2,7 @@
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Seller POS</title>
     <link rel="stylesheet" href="css/style.css" />
 
@@ -29,7 +30,10 @@
       </div>
 
       <!-- Search -->
-      <input type="text" id="searchInput" placeholder="البحث ..." />
+      <div class="mobile-search-wrap" id="mobileSearchWrap">
+        <button id="searchToggleBtn" type="button" aria-expanded="true" aria-controls="searchInput" class="search-toggle-btn">البحث</button>
+        <input type="text" id="searchInput" placeholder="البحث ..." />
+      </div>
 
       <!-- Tags -->
       <div id="Category" class="tag-container"></div>

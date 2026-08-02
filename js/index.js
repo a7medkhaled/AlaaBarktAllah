@@ -1,5 +1,5 @@
 // js/index.js
-import { auth, db } from "./firebase-config.js";
+import { auth, db, firebaseConfig } from "./firebase-config.js";
 import {
   doc,
   getDoc,
@@ -480,6 +480,10 @@ window.removeFromCart = (index) => {
 function sanitizeForFirestore(value) {
   if (value === undefined) return undefined;
 
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+
   if (Array.isArray(value)) {
     return value
       .map((item) => sanitizeForFirestore(item))
@@ -553,6 +557,7 @@ async function submitData(type = "sale") {
     }),
   });
   console.log(JSON.stringify(payload));
+  console.log("Submitting to project:", firebaseConfig?.projectId);
 
   try {
     if (navigator.onLine) {

@@ -8,7 +8,10 @@ const ENV = isDev ? "dev" : "prod";
 const configFile = `./firebaseKeys.${ENV}.json`;
 const response = await fetch(configFile);
 const firebaseConfig = await response.json();
-console.log(firebaseConfig);
+console.log("Loaded firebaseConfig:", firebaseConfig);
+
+// export the resolved config for runtime debugging
+export { firebaseConfig };
 
 // Replace the below config with your actual Firebase project config
 // const firebaseConfig = {
