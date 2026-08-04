@@ -56,14 +56,30 @@ let customers = [];
 protectRoute(); // Ensure route is protected
 
 // Auth state listener
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   if (user) {
     elements.userName.textContent = user.email;
     elements.loader.style.display = "none";
     elements.page.style.display = "block";
   } else {
     window.location.href = "login.html";
+    return
   }
+try {
+    elements.userName.textContent = user.email;
+
+    await loadProducts();
+    await loadCustomers();
+    await syncPendingData();
+    await renderPendingTransactions();
+
+    elements.loader.style.display = "none";
+    elements.page.style.display = "block";
+  } catch (e) {
+    console.error(e);
+    alert(e.stack || e.message);
+  }
+
 });
 
 // ------------------ Products ------------------
@@ -750,7 +766,4 @@ window.addEventListener("offline", () => {
   elements.syncStatus.textContent = "📴 لا يوجد اتصال بالإنترنت";
 });
 
-loadProducts();
-loadCustomers();
-syncPendingData();
-renderPendingTransactions();
+

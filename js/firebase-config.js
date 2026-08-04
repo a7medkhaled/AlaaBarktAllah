@@ -5,9 +5,16 @@ import { isDev } from "../settings.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
 const ENV = isDev ? "dev" : "prod";
+let firebaseConfig
+try{
 const configFile = `./firebaseKeys.${ENV}.json`;
+
 const response = await fetch(configFile);
-const firebaseConfig = await response.json();
+ firebaseConfig= await response.json();
+} catch (e) {
+  console.error(e);
+  alert(e.message);
+}
 console.log("Loaded firebaseConfig:", firebaseConfig);
 
 // export the resolved config for runtime debugging

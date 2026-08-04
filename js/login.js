@@ -60,8 +60,8 @@ onAuthChange((user) => {
   if (user) {
     window.location.href = redirectTo;
   } else {
-    loginForm.style = "block";
-    globalLoader.style = "none";
+    loginForm.style.display = "block";
+    globalLoader.style.display = "none";
   }
 });
 if (!auth.currentUser) {
